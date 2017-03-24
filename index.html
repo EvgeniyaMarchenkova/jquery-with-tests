@@ -7,16 +7,17 @@
 </head>
 <body>
 <p>Hello</p>
-<ul id="myList">
-		<li class="wrapper">Example one</li>
-		<li class="item">Example two</li>
-		<li class="item">Example three</li>
-		<li>Example four</li>
-		<li>Example five</li>
-		<li>Example Six</li>
-</ul>
+<div class="wrapper">
+		<div class="child">Example one</div>
+		<div class="child" >Example two</div>
+		<div class="child">Example three</div>
+		<div>Example four</div>
+		<div>Example five</div>
+		<div>Example Six</div>
+</div>
 <script>
-	$('ul').children('.item');
+	$('.child').append($('p'));
+
 </script>
 </body>
 

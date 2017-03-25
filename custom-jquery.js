@@ -117,7 +117,7 @@ window.$ = function (selector, context) {
         for (node in this) {
             if (this[node].nodeType == 1) {
                 let isCalled = false;
-                if (isCalled) {
+                if (!isCalled) {
                     isCalled = true;
                     this[node].setAttribute('on' + evnt, func);
                 }
@@ -127,9 +127,9 @@ window.$ = function (selector, context) {
     }
 
     CustomJquery.prototype.data = function(key, value) {
-
         for (node in this) {
             if (this[node].nodeType == 1) {
+                if (arguments.length == 0) return this[node].dataset;
                 if (key && !value) {
                     if (typeof key == 'object') {
                         for (keyOfObjParam in key) {
@@ -143,11 +143,9 @@ window.$ = function (selector, context) {
                 if (key && value) {
                     this[node].dataset[key] = value;
                 }
-                return this[node].dataset;
-
             }
         }
-
+        return this[node].dataset;
     }
 
     return new CustomJquery(selector);

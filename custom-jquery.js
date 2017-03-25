@@ -20,7 +20,10 @@ window.$ = function (selector, context) {
                     addClassElm(this[node], result);
                 }
                 function addClassElm(elm, elmClassName) {
-                    elm.classList.add(...elmClassName.replace(/ +/, ' ').split(' '));
+                    if(/ /.test(elmClassName)) {
+                        elm.classList.add(...elmClassName.replace(/ +/, ' ').split(' '));
+                    }
+                    else elm.classList.add(elmClassName);
                 }
             }
         }
@@ -28,16 +31,15 @@ window.$ = function (selector, context) {
     CustomJquery.prototype.append = function (value) {
         for (node in this) {
             if (/^[0-9]+$/.test(node)) {
-                if (typeof value == 'function') {
-                    return function(selector) {
-                        var node = document.querySelector(selector);
-                        item.appendChild(node);
+                if (typeof value == 'object') {
+                    if (document.querySelector(value.selector)) {
+                        if (node == 0) {
+                            this[node].appendChild(document.querySelector(value.selector));
+                        }
+                        else {
+                            this[node].appendChild(document.querySelector(value.selector).cloneNode(true));
+                        }
                     }
-
-
-
-                    item.appendChild(node);
-                    //node.remove();
                 }
                 else {
                     this[node].innerHTML += value;
@@ -73,11 +75,14 @@ window.$ = function (selector, context) {
         if (!value) {
             return this[0].children;
         }
-        return [].filter.call(this[node].children, function(item){
-            if (item.matches(value)) return true;
-            return false;
-        })
-
+        for (node in this) {
+            if (/^[0-9]+$/.test(node)) {
+                return [].filter.call(this[node].children, function(item){
+                    if (item.matches(value)) return true;
+                    return false;
+                })
+            }
+        }
     }
     CustomJquery.prototype.css = function(value) {
         if (typeof value == 'string') {
@@ -87,11 +92,17 @@ window.$ = function (selector, context) {
             value.toString = function() {
                 var str = '';
                 for (key in value) {
-                    str += key + ':' + value.key + '; ';
+                    if (typeof value[key] != 'function') {
+                        str += key + ':' + value[key] + '; ';
+                    }
                 }
                 return str;
             }
-            this[0].style.cssText = value.toString();
+            for (node in this) {
+                if (/^[0-9]+$/.test(node)) {
+                    this[node].style.cssText = value.toString();
+                }
+            }
         }
     }
     CustomJquery.prototype.on = function(evnt, func) {
@@ -113,17 +124,27 @@ window.$ = function (selector, context) {
 
             }
         }
-
-    }
-    CustomJquery.prototype.each = function (func) {
-        [].forEach.call(this, function(item) {
-            func.apply(item, func.arguments);
-        })
     }
 
+    CustomJquery.prototype.data = function(key, value) {
+        for (node in this) {
+            if (/^[0-9]+$/.test(node)) {
+                if (arguments.length == 0 ) return this[node].dataset;
+                if (key && !value) {
+                    if (typeof key == 'object') {
 
+                    }
+                    else {
+                        this[node].dataset[key] = undefined;
+                        return this[node].dataset;
+                    }
 
+                }
 
+            }
+        }
+
+    }
 
     return new CustomJquery(selector);
 };

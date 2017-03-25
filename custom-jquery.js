@@ -10,7 +10,7 @@ window.$ = function (selector, context) {
     CustomJquery.prototype.addClass = function (value) {
         var index = 0;
         for (node in this) {
-            if (/^[0-9]+$/.test(node)) {
+            if (this[node].nodeType == 1) {
                 if (typeof value == 'string') {
                     addClassElm(this[node], value);
                 }
@@ -30,7 +30,7 @@ window.$ = function (selector, context) {
     }
     CustomJquery.prototype.append = function (value) {
         for (node in this) {
-            if (/^[0-9]+$/.test(node)) {
+            if (this[node].nodeType == 1) {
                 if (typeof value == 'object') {
                     if (document.querySelector(value.selector)) {
                         if (node == 0) {
@@ -53,7 +53,7 @@ window.$ = function (selector, context) {
         }
         else {
             for (node in this) {
-                if (/^[0-9]+$/.test(node)) {
+                if (this[node].nodeType == 1) {
                     this[node].innerHTML = value;
 
                 }
@@ -63,7 +63,7 @@ window.$ = function (selector, context) {
     CustomJquery.prototype.attr = function(...value) {
         if (value.length == 2) {
             for (node in this) {
-                if (/^[0-9]+$/.test(node)) {
+                if (this[node].nodeType == 1) {
                     this[node].setAttribute(value[0], value[1]);
 
                 }
@@ -76,7 +76,7 @@ window.$ = function (selector, context) {
             return this[0].children;
         }
         for (node in this) {
-            if (/^[0-9]+$/.test(node)) {
+            if (this[node].nodeType == 1) {
                 return [].filter.call(this[node].children, function(item){
                     if (item.matches(value)) return true;
                     return false;
@@ -86,7 +86,7 @@ window.$ = function (selector, context) {
     }
     CustomJquery.prototype.css = function(value) {
         if (typeof value == 'string') {
-            return this[0].style.value;
+            return this[0].style[value];
         }
         else {
             value.toString = function() {
@@ -99,7 +99,7 @@ window.$ = function (selector, context) {
                 return str;
             }
             for (node in this) {
-                if (/^[0-9]+$/.test(node)) {
+                if (this[node].nodeType == 1) {
                     this[node].style.cssText = value.toString();
                 }
             }
@@ -107,7 +107,7 @@ window.$ = function (selector, context) {
     }
     CustomJquery.prototype.on = function(evnt, func) {
         for (node in this) {
-            if (/^[0-9]+$/.test(node)) {
+            if (this[node].nodeType == 1) {
                 this[node].setAttribute('on' + evnt, func);
 
             }
@@ -115,7 +115,7 @@ window.$ = function (selector, context) {
     }
     CustomJquery.prototype.one = function(evnt, func) {
         for (node in this) {
-            if (/^[0-9]+$/.test(node)) {
+            if (this[node].nodeType == 1) {
                 let isCalled = false;
                 if (isCalled) {
                     isCalled = true;
@@ -127,19 +127,23 @@ window.$ = function (selector, context) {
     }
 
     CustomJquery.prototype.data = function(key, value) {
+
         for (node in this) {
-            if (/^[0-9]+$/.test(node)) {
-                if (arguments.length == 0 ) return this[node].dataset;
+            if (this[node].nodeType == 1) {
                 if (key && !value) {
                     if (typeof key == 'object') {
-
+                        for (keyOfObjParam in key) {
+                            this[node].dataset[keyOfObjParam] = key[keyOfObjParam];
+                        }
                     }
                     else {
-                        this[node].dataset[key] = undefined;
-                        return this[node].dataset;
+                        return this[node].dataset[key];
                     }
-
                 }
+                if (key && value) {
+                    this[node].dataset[key] = value;
+                }
+                return this[node].dataset;
 
             }
         }

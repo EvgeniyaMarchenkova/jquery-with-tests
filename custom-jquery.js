@@ -32,7 +32,11 @@ window.$ = function (selector, context) {
         for (node in this) {
             if (this[node].nodeType == 1) {
                 if (typeof value == 'object') {
-                    if (document.querySelector(value.selector)) {
+                    if (value.nodeType == 1) {
+                        let element = value;
+                        this[node].appendChild(element.cloneNode(true));
+                    }
+                    else if (document.querySelector(value.selector)) {
                         if (node == 0) {
                             this[node].appendChild(document.querySelector(value.selector));
                         }
@@ -105,23 +109,36 @@ window.$ = function (selector, context) {
             }
         }
     }
-    CustomJquery.prototype.on = function(evnt, func) {
+    CustomJquery.prototype.on = function(evnt, selector, func) {
         for (node in this) {
             if (this[node].nodeType == 1) {
-                this[node].setAttribute('on' + evnt, func);
-
+                if (document.querySelector(selector)) {
+                    function delegateEvents(e) {
+                        var target = e.target;
+                        if (target.matches(selector)) {
+                            func();
+                        }
+                    }
+                    this[node].addEventListener(evnt, delegateEvents)
+                }
+                else this[node].addEventListener(evnt, selector);
             }
         }
     }
     CustomJquery.prototype.one = function(evnt, func) {
+        function onlyOnce(f) {
+            var flag = false;
+            return function(...args) {
+                if (!flag) {
+                    flag = true;
+                    return f.apply(this, args);
+                }
+            }
+        }
+        func = onlyOnce(func);
         for (node in this) {
             if (this[node].nodeType == 1) {
-                let isCalled = false;
-                if (!isCalled) {
-                    isCalled = true;
-                    this[node].setAttribute('on' + evnt, func);
-                }
-
+                this[node].addEventListener(evnt, func);
             }
         }
     }
@@ -140,71 +157,26 @@ window.$ = function (selector, context) {
                         return this[node].dataset[key];
                     }
                 }
-                if (key && value) {
+                else if (key && value) {
                     this[node].dataset[key] = value;
                 }
             }
         }
         return this[node].dataset;
     }
+    CustomJquery.prototype.each = function (func) {
+        var index = 0;
+        for (node in this) {
+            if (this[node].nodeType == 1) {
+
+                var result = func.call(this[node], index, this[node]);
+                if (result == false) return;
+                index++;
+
+
+            }
+        }
+    }
 
     return new CustomJquery(selector);
 };
-/*
-
-
-
-
-
-
-
- window.$.children = function(value) {
- if (!value) {
- return arrElm[0].children;
- }
- return [].filter.call(arrElm[0].children, function(item){
- if (item.matches(value)) return true;
- return false;
- })
-
- }
- window.$.css = function(value) {
- if (typeof value == 'string') {
- return arrElm[0].style.value;
- }
- else {
- value.toString = function() {
- var str = '';
- for (key in value) {
- str += key + ':' + value.key + '; ';
- }
- return str;
- }
- arrElm[0].style.cssText = value.toString();
- }
- }
- window.$.on = function(evnt, func) {
- [].forEach.call(arrElm, function(item) {
- item.setAttribute('on' + evnt, func);
- })
- }
- window.$.on = function(evnt, func) {
- [].forEach.call(arrElm, function(item) {
- var isCalled = false;
- if (isCalled) {
- isCalled = true;
- item.setAttribute('on' + evnt, func);
- }
- })
- }
-
- window.$.each = function(func) {
- [].forEach.call(arrElm, function(item) {
- func.apply(item, func.arguments);
- })
- }
- */
-
-
-
-

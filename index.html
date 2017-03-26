@@ -6,7 +6,7 @@
 		<title>Custom Jquery</title>
 </head>
 <body>
-<p>Hello</p>
+<p>some text</p>
 <div class="wrapper">
 		<div class="child foo" style="color:red">Example one</div>
 		<div class="child" >Example two</div>
@@ -16,7 +16,12 @@
 		<div>Example Six</div>
 </div>
 <script>
-	console.log($('.child').data('foo', 1));
+
+
+	$('.wrapper').on('click', '.child', function () {
+		console.log(45);
+	})
+
 
 </script>
 </body>

@@ -21,7 +21,10 @@ window.$ = function (selector, context) {
                 }
                 function addClassElm(elm, elmClassName) {
                     if(/ /.test(elmClassName)) {
-                        elm.classList.add(...elmClassName.replace(/ +/, ' ').split(' '));
+                        var arrClasses = elmClassName.replace(/ +/, ' ').split(' ');
+                        for (var i = 0; i < arrClasses.length; i++) {
+                            elm.classList.add(arrClasses[i]);
+                        }
                     }
                     else elm.classList.add(elmClassName);
                 }
@@ -33,7 +36,7 @@ window.$ = function (selector, context) {
             if (this[node].nodeType == 1) {
                 if (typeof value == 'object') {
                     if (value.nodeType == 1) {
-                        let element = value;
+                        var element = value;
                         this[node].appendChild(element.cloneNode(true));
                     }
                     else if (document.querySelector(value.selector)) {
@@ -64,16 +67,16 @@ window.$ = function (selector, context) {
             }
         }
     }
-    CustomJquery.prototype.attr = function(...value) {
-        if (value.length == 2) {
+    CustomJquery.prototype.attr = function() {
+        if (arguments.length == 2) {
             for (node in this) {
                 if (this[node].nodeType == 1) {
-                    this[node].setAttribute(value[0], value[1]);
+                    this[node].setAttribute(arguments[0], arguments[1]);
 
                 }
             }
         }
-        return this[0].getAttribute(value);
+        return this[0].getAttribute(arguments[0]);
     }
     CustomJquery.prototype.children = function(value) {
         if (!value) {
@@ -128,10 +131,10 @@ window.$ = function (selector, context) {
     CustomJquery.prototype.one = function(evnt, func) {
         function onlyOnce(f) {
             var flag = false;
-            return function(...args) {
+            return function() {
                 if (!flag) {
                     flag = true;
-                    return f.apply(this, args);
+                    return f.apply(this, arguments);
                 }
             }
         }
@@ -142,7 +145,6 @@ window.$ = function (selector, context) {
             }
         }
     }
-
     CustomJquery.prototype.data = function(key, value) {
         for (node in this) {
             if (this[node].nodeType == 1) {
@@ -168,15 +170,11 @@ window.$ = function (selector, context) {
         var index = 0;
         for (node in this) {
             if (this[node].nodeType == 1) {
-
                 var result = func.call(this[node], index, this[node]);
                 if (result == false) return;
                 index++;
-
-
             }
         }
     }
-
     return new CustomJquery(selector);
 };
